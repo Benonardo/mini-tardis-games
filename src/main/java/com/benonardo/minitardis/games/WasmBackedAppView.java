@@ -1,8 +1,6 @@
 package com.benonardo.minitardis.games;
 
-import com.dylibso.chicory.runtime.ExportFunction;
-import com.dylibso.chicory.runtime.HostFunction;
-import com.dylibso.chicory.runtime.HostImports;
+import com.dylibso.chicory.runtime.*;
 import com.dylibso.chicory.runtime.Module;
 import com.dylibso.chicory.wasm.types.Value;
 import com.dylibso.chicory.wasm.types.ValueType;
@@ -20,6 +18,8 @@ public final class WasmBackedAppView implements AppView {
 
     private final ExportFunction draw;
     private final ExportFunction onClick;
+    private final int dataPtr;
+    private final Instance instance;
     @Nullable
     private DrawableCanvas canvas = null;
     @Nullable
@@ -27,9 +27,14 @@ public final class WasmBackedAppView implements AppView {
 
     public WasmBackedAppView(Module module) {
         var functions = this.new BuiltinFunctions();
-        var instance = module.instantiate(new HostImports(functions.ALL));
-        this.draw = instance.export("draw");
-        this.onClick = instance.export("on_click");
+        instance = module.instantiate(new HostImports(functions.ALL));
+        this.draw = instance.export("mtg_draw");
+        this.onClick = instance.export("mtg_on_click");
+        var allocResult = instance.export("mtg_alloc_data").apply();
+        if (allocResult.length != 1) {
+            throw new RuntimeException("alloc_data() returned multiple values");
+        }
+        this.dataPtr = allocResult[0].asInt();
     }
 
     @Override
@@ -37,7 +42,7 @@ public final class WasmBackedAppView implements AppView {
         this.canvas = canvas;
         this.blockEntity = blockEntity;
         try {
-            draw.apply();
+            draw.apply(Value.i32(dataPtr));
         } catch (Exception e) {
             MiniTardisGames.LOGGER.error("WASM draw", e);
         }
@@ -49,7 +54,7 @@ public final class WasmBackedAppView implements AppView {
     public boolean onClick(ConsoleScreenBlockEntity blockEntity, ServerPlayerEntity player, ClickType type, int x, int y) {
         this.blockEntity = blockEntity;
         try {
-            onClick.apply(Value.i32(type.ordinal()), Value.i32(x), Value.i32(y));
+            onClick.apply(Value.i32(dataPtr), Value.i32(type.ordinal()), Value.i32(x), Value.i32(y));
         } catch (Exception e) {
             MiniTardisGames.LOGGER.error("WASM on_click", e);
         }
@@ -69,7 +74,7 @@ public final class WasmBackedAppView implements AppView {
                     return Value.EMPTY_VALUES;
                 },
                 "mini_tardis_games",
-                "log",
+                "mtg_log",
                 List.of(ValueType.I32, ValueType.I32, ValueType.I32),
                 List.of()
         );
@@ -81,7 +86,7 @@ public final class WasmBackedAppView implements AppView {
                     return new Value[]{Value.i32(blockEntity.drawRandom.nextInt())};
                 },
                 "mini_tardis_games",
-                "random_i32",
+                "mtg_random_i32",
                 List.of(ValueType.I32, ValueType.I32, ValueType.I32),
                 List.of()
         );
@@ -93,7 +98,7 @@ public final class WasmBackedAppView implements AppView {
                     return new Value[]{Value.i32(canvas.getWidth())};
                 },
                 "mini_tardis_games",
-                "get_width",
+                "mtg_get_width",
                 List.of(),
                 List.of(ValueType.I32)
         );
@@ -105,7 +110,7 @@ public final class WasmBackedAppView implements AppView {
                     return new Value[]{Value.i32(canvas.getHeight())};
                 },
                 "mini_tardis_games",
-                "get_height",
+                "mtg_get_height",
                 List.of(),
                 List.of(ValueType.I32)
         );
@@ -119,7 +124,7 @@ public final class WasmBackedAppView implements AppView {
                     return new Value[]{Value.i32(canvas.getRaw(x, y))};
                 },
                 "mini_tardis_games",
-                "get_raw",
+                "mtg_get_raw",
                 List.of(ValueType.I32, ValueType.I32),
                 List.of(ValueType.I32)
         );
@@ -138,7 +143,7 @@ public final class WasmBackedAppView implements AppView {
                     return Value.EMPTY_VALUES;
                 },
                 "mini_tardis_games",
-                "set_raw",
+                "mtg_set_raw",
                 List.of(ValueType.I32, ValueType.I32, ValueType.I32),
                 List.of()
         );
