@@ -107,9 +107,9 @@ public final class WasmBackedAppView implements AppView {
 
         public final HostFunction log = new HostFunction(
                 (instance, args) -> {
-                    var offset = args[0].asInt();
-                    var len = args[1].asInt();
-                    var message = instance.memory().readString(offset, len);
+                    var message_address = args[0].asInt();
+                    var message_len = args[1].asInt();
+                    var message = instance.memory().readString(message_address, message_len);
                     var level = args[2].asInt();
                     MiniTardisGames.LOGGER.atLevel(Level.intToLevel(level)).log(message);
                     return Value.EMPTY_VALUES;
@@ -223,13 +223,13 @@ public final class WasmBackedAppView implements AppView {
         public final HostFunction drawInbuiltSprite = new HostFunction(
                 (instance, args) -> {
                     if (canvas == null) {
-                        throw new IllegalStateException("Called draw_inbuilt_sprite(x, y, name_len, name_offset) while not currently drawing");
+                        throw new IllegalStateException("Called draw_inbuilt_sprite(x, y, name_address, name_len) while not currently drawing");
                     }
                     var x = args[0].asInt();
                     var y = args[1].asInt();
-                    var name_offset = args[2].asInt();
+                    var name_address = args[2].asInt();
                     var name_len = args[3].asInt();
-                    var name = instance.memory().readString(name_offset, name_len);
+                    var name = instance.memory().readString(name_address, name_len);
                     CanvasUtils.draw(canvas, x, y, TardisCanvasUtils.getSprite(name));
                     return Value.EMPTY_VALUES;
                 },
@@ -241,13 +241,13 @@ public final class WasmBackedAppView implements AppView {
         public final HostFunction drawText = new HostFunction(
                 (instance, args) -> {
                     if (canvas == null) {
-                        throw new IllegalStateException("Called draw_text(text_offset, tex_len, x, y, argb) while not currently drawing");
+                        throw new IllegalStateException("Called draw_text(x, y, text_address, tex_len, size, argb) while not currently drawing");
                     }
-                    var textOffset = args[0].asInt();
-                    var textLen = args[1].asInt();
-                    var text = instance.memory().readString(textOffset, textLen);
-                    var x = args[2].asInt();
-                    var y = args[3].asInt();
+                    var x = args[0].asInt();
+                    var y = args[1].asInt();
+                    var textaddress = args[2].asInt();
+                    var textLen = args[3].asInt();
+                    var text = instance.memory().readString(textaddress, textLen);
                     var size = args[4].asInt();
                     var argb = args[5].asInt();
                     DefaultFonts.VANILLA.drawText(canvas, text, x, y, size, CanvasUtils.findClosestColorARGB(argb));
@@ -261,11 +261,11 @@ public final class WasmBackedAppView implements AppView {
         public final HostFunction playSound = new HostFunction(
                 (instance, args) -> {
                     if (blockEntity == null) {
-                        throw new IllegalStateException("Called play_sound() while not currently in a context???");
+                        throw new IllegalStateException("Called play_sound(id_address, id_len, category, volume, pitch) while not currently in a context???");
                     }
-                    var id_offset = args[0].asInt();
+                    var id_address = args[0].asInt();
                     var id_len = args[1].asInt();
-                    var id = instance.memory().readString(id_offset, id_len);
+                    var id = instance.memory().readString(id_address, id_len);
                     var category = SoundCategory.values()[args[2].asInt()];
                     var volume = args[3].asFloat();
                     var pitch = args[4].asFloat();
