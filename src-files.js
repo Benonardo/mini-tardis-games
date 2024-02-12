@@ -1,6 +1,6 @@
 var srcIndex = new Map(JSON.parse('[\
 ["glam",["",[["bool",[["scalar",[],["bvec3a.rs","bvec4a.rs"]]],["bvec2.rs","bvec3.rs","bvec4.rs","scalar.rs"]],["f32",[["scalar",[],["mat2.rs","mat3a.rs","mat4.rs","quat.rs","vec3a.rs","vec4.rs"]]],["affine2.rs","affine3a.rs","float.rs","mat3.rs","math.rs","scalar.rs","vec2.rs","vec3.rs"]],["f64",[],["daffine2.rs","daffine3.rs","dmat2.rs","dmat3.rs","dmat4.rs","dquat.rs","dvec2.rs","dvec3.rs","dvec4.rs","float.rs","math.rs"]],["i16",[],["i16vec2.rs","i16vec3.rs","i16vec4.rs"]],["i32",[],["ivec2.rs","ivec3.rs","ivec4.rs"]],["i64",[],["i64vec2.rs","i64vec3.rs","i64vec4.rs"]],["swizzles",[["scalar",[],["vec3a_impl.rs","vec4_impl.rs"]]],["dvec2_impl.rs","dvec3_impl.rs","dvec4_impl.rs","i16vec2_impl.rs","i16vec3_impl.rs","i16vec4_impl.rs","i64vec2_impl.rs","i64vec3_impl.rs","i64vec4_impl.rs","ivec2_impl.rs","ivec3_impl.rs","ivec4_impl.rs","scalar.rs","u16vec2_impl.rs","u16vec3_impl.rs","u16vec4_impl.rs","u64vec2_impl.rs","u64vec3_impl.rs","u64vec4_impl.rs","uvec2_impl.rs","uvec3_impl.rs","uvec4_impl.rs","vec2_impl.rs","vec3_impl.rs","vec_traits.rs"]],["u16",[],["u16vec2.rs","u16vec3.rs","u16vec4.rs"]],["u32",[],["uvec2.rs","uvec3.rs","uvec4.rs"]],["u64",[],["u64vec2.rs","u64vec3.rs","u64vec4.rs"]]],["align16.rs","bool.rs","deref.rs","euler.rs","f32.rs","f64.rs","features.rs","float.rs","i16.rs","i32.rs","i64.rs","lib.rs","macros.rs","swizzles.rs","u16.rs","u32.rs","u64.rs"]]],\
 ["mtg_rust",["",[],["ffi.rs","lib.rs"]]],\
-["testgame",["",[],["lib.rs"]]]\
+["raytracer",["",[],["lib.rs"]]]\
 ]'));
 createSrcSidebar();
