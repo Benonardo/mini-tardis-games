@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["mtg_rust"];
+window.ALL_CRATES = ["glam","mtg_rust","testgame"];
