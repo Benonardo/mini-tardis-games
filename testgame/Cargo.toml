@@ -6,5 +6,5 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[profile.release]
-opt-level = "s"
+[dependencies]
+glam = "0.25.0"
