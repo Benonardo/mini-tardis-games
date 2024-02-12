@@ -32,7 +32,7 @@ jobs:
               env:
                 ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
                 PUBLISH_BRANCH: gh-pages
-                PUBLISH_DIR: ./mtg-rust/target/doc
+                PUBLISH_DIR: ./mtg-rust/target/wasm32-unknown-unknown/doc
                 SCRIPT_MODE: true
               run: |
                 wget https://raw.githubusercontent.com/peaceiris/actions-gh-pages/v2.5.0/entrypoint.sh
