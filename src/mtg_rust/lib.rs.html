@@ -215,6 +215,8 @@
 <a href="#214" id="214">214</a>
 <a href="#215" id="215">215</a>
 <a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The rust crate for the Mini Tardis Games addon of the Minecraft mod Mini Tardis.  
 //! Setup your [`Game`] using [`game_impl`] and you're ready to go!
 
@@ -373,7 +375,9 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+<span class="doccomment">/// Indicating the type of a [`Game::on_click`] callback, usually corresponding to a mouse button.
+/// Analogous to [the class with the same name in yarn mappings](https://maven.fabricmc.net/docs/yarn-1.20.1+build.10/net/minecraft/util/ClickType.html).
+</span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>ClickType {
     Left,
     Right,
