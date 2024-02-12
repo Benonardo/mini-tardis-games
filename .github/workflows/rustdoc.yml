@@ -24,16 +24,14 @@ jobs:
                 components: rustfmt, rust-src
 
             - name: Build Documentation
-              uses: actions-rs/cargo@v1
-              with:
-                command: doc
-                args: --all --no-deps
+              working-directory: ./mtg-rust
+              run: cargo doc --all
 
             - name: Deploy Documentation
               env:
                 ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
                 PUBLISH_BRANCH: gh-pages
-                PUBLISH_DIR: ./target/doc
+                PUBLISH_DIR: ./mtg-rust/target/doc
                 SCRIPT_MODE: true
               run: |
                 wget https://raw.githubusercontent.com/peaceiris/actions-gh-pages/v2.5.0/entrypoint.sh
