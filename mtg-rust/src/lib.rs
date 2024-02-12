@@ -37,6 +37,7 @@ pub fn log(message: &str, level: LogLevel) {
 
 /// Returns an arbitrary nanosecond value to measure elapsed time between two calls.  
 /// Analogous to Java's [`System.nanoTime()`](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/System.html#nanoTime()) method.
+#[must_use]
 pub fn nano_time() -> i64 {
     unsafe { ffi::mtg_nano_time() }
 }
@@ -66,6 +67,7 @@ pub struct Screen {
 
 impl Screen {
     /// Returns a pseudorandom [`i32`] using the block entities' [`drawRandom`](https://github.com/enjarai/mini-tardis/blob/cd9041c0cd82eb7f92d4e48ea3c24d9a2ec62e24/src/main/java/dev/enjarai/minitardis/block/console/ScreenBlockEntity.java#L48) field.
+    #[must_use]
     pub fn random_i32(&self) -> i32 {
         unsafe { ffi::mtg_random_i32() }
     }
@@ -89,18 +91,21 @@ pub struct Canvas {
 impl Canvas {
     /// Get the width of the canvas, usually 128.  
     /// Analogous to the canvas' [`getWidth`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L34) method.
+    #[must_use]
     pub fn get_width(&self) -> i32 {
         unsafe { ffi::mtg_get_width() }
     }
 
     /// Get the height of the canvas, usually 96.  
     /// Analogous to the canvas' [`getHeight`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L32) method.
+    #[must_use]
     pub fn get_height(&self) -> i32 {
         unsafe { ffi::mtg_get_height() }
     }
 
     /// Get the raw color value at the certain `x` and `y` coordinates.  
     /// Analogous to the canvas' [`getRaw`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L28) method.
+    #[must_use]
     pub fn get_raw_color(&self, x: i32, y: i32) -> i32 {
         unsafe { ffi::mtg_get_raw(x, y) }
     }
@@ -186,6 +191,7 @@ pub trait Game: Default {
 }
 
 #[doc(hidden)]
+#[must_use]
 pub fn _register_game<G: Game>() -> i32 {
     std::panic::set_hook(Box::new(|info| log(&info.to_string(), LogLevel::Error)));
 

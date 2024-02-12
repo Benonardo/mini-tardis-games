@@ -13,7 +13,7 @@ name = "mtg-rust"
 version = "0.1.0"
 
 [[package]]
-name = "testgame"
+name = "raytracer"
 version = "0.1.0"
 dependencies = [
  "glam",

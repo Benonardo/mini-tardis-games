@@ -1,7 +1,10 @@
 [package]
-name = "testgame"
+name = "raytracer"
 version = "0.1.0"
 edition = "2021"
+description = "A simple ray tracer for a sphere as a Mini Tardis Game"
+license = "CC0-1.0"
+repository.workspace = true
 
 [lib]
 crate-type = ["cdylib"]

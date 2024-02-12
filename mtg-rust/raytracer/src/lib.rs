@@ -5,12 +5,13 @@ mtg_rust::game_impl!(RayTracer);
 
 #[derive(Default)]
 pub struct RayTracer {
-    degrees: i32,
+    degrees: u16,
 }
+
+const RADIUS: f32 = 0.5;
 
 fn per_pixel(coord: Vec2, ray_origin: Vec3) -> Vec4 {
     let ray_direction = Vec3::new(coord.x, coord.y, -1.0);
-    const RADIUS: f32 = 0.5;
 
     let a = ray_direction.dot(ray_direction);
     let b = 2.0 * ray_origin.dot(ray_direction);
@@ -36,8 +37,9 @@ fn per_pixel(coord: Vec2, ray_origin: Vec3) -> Vec4 {
 }
 
 impl Game for RayTracer {
+    #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
     fn draw(&mut self, _screen: &Screen, canvas: &Canvas) {
-        let radians = (self.degrees as f32).to_radians();
+        let radians = f32::from(self.degrees).to_radians();
         let ray_origin = Vec3::new(radians.sin(), 0.0, radians.cos());
         let width = canvas.get_width();
         let height = canvas.get_height();
@@ -55,7 +57,11 @@ impl Game for RayTracer {
                 canvas.set_pixel_argb(x, y, color);
             }
         }
+
         self.degrees += 1;
+        if self.degrees >= 360 {
+            self.degrees = 0;
+        }
     }
 
     fn on_click(&mut self, _screen: &Screen, _click_type: ClickType, _x: i32, _y: i32) {}
