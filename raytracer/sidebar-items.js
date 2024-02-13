@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["mtg_alloc_data","mtg_draw","mtg_on_click"],"struct":["RayTracer"]};
+window.SIDEBAR_ITEMS = {"fn":["mtg_alloc_data","mtg_draw","mtg_draw_background","mtg_on_click","mtg_screen_close","mtg_screen_open","mtg_screen_tick"],"struct":["RayTracer"]};

@@ -217,6 +217,60 @@
 <a href="#216" id="216">216</a>
 <a href="#217" id="217">217</a>
 <a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The rust crate for the Mini Tardis Games addon of the Minecraft mod Mini Tardis.  
 //! Setup your [`Game`] using [`game_impl`] and you're ready to go!
 
@@ -402,6 +456,26 @@
         </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_on_click(data_ptr: i32, r#type: i32, x: i32, y: i32) {
             <span class="macro-nonterminal">$crate::_on_click</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr, r#type, x, y);
         }
+
+        <span class="attr">#[no_mangle]
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_draw_background(data_ptr: i32,) {
+            <span class="macro-nonterminal">$crate::_draw_background</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
+        }
+
+        <span class="attr">#[no_mangle]
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_tick(data_ptr: i32,) {
+            <span class="macro-nonterminal">$crate::_screen_tick</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
+        }
+
+        <span class="attr">#[no_mangle]
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_open(data_ptr: i32,) {
+            <span class="macro-nonterminal">$crate::_screen_open</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
+        }
+
+        <span class="attr">#[no_mangle]
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_close(data_ptr: i32,) {
+            <span class="macro-nonterminal">$crate::_screen_close</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
+        }
     };
 }
 
@@ -409,6 +483,16 @@
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, screen: <span class="kw-2">&amp;</span>Screen, canvas: <span class="kw-2">&amp;</span>Canvas);
 
     <span class="kw">fn </span>on_click(<span class="kw-2">&amp;mut </span><span class="self">self</span>, screen: <span class="kw-2">&amp;</span>Screen, click_type: ClickType, x: i32, y: i32);
+
+    <span class="kw">fn </span>draw_background(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _screen: <span class="kw-2">&amp;</span>Screen, canvas: <span class="kw-2">&amp;</span>Canvas) {
+        canvas.draw_inbuilt_sprite(<span class="number">0</span>, <span class="number">0</span>, <span class="string">"app_background"</span>);
+    }
+
+    <span class="kw">fn </span>screen_tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _screen: <span class="kw-2">&amp;</span>Screen) {}
+
+    <span class="kw">fn </span>screen_open(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _screen: <span class="kw-2">&amp;</span>Screen) {}
+
+    <span class="kw">fn </span>screen_close(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _screen: <span class="kw-2">&amp;</span>Screen) {}
 }
 
 <span class="attr">#[doc(hidden)]
@@ -435,4 +519,27 @@
     };
     game.on_click(<span class="kw-2">&amp;</span>Screen { _dummy: () }, click_type, x, y);
 }
-</code></pre></div></section></main></body></html>
+
+<span class="attr">#[doc(hidden)]
+</span><span class="kw">pub fn </span>_draw_background&lt;G: Game&gt;(data_ptr: i32) {
+    <span class="kw">let </span>game = <span class="kw">unsafe </span>{ (data_ptr <span class="kw">as </span><span class="kw-2">*mut </span>G).as_mut() }.expect(<span class="string">"game was null in draw_background"</span>);
+    game.draw_background(<span class="kw-2">&amp;</span>Screen { _dummy: () }, <span class="kw-2">&amp;</span>Canvas { _dummy: () });
+}
+
+<span class="attr">#[doc(hidden)]
+</span><span class="kw">pub fn </span>_screen_tick&lt;G: Game&gt;(data_ptr: i32) {
+    <span class="kw">let </span>game = <span class="kw">unsafe </span>{ (data_ptr <span class="kw">as </span><span class="kw-2">*mut </span>G).as_mut() }.expect(<span class="string">"game was null in screen_tick"</span>);
+    game.screen_tick(<span class="kw-2">&amp;</span>Screen { _dummy: () });
+}
+
+<span class="attr">#[doc(hidden)]
+</span><span class="kw">pub fn </span>_screen_open&lt;G: Game&gt;(data_ptr: i32) {
+    <span class="kw">let </span>game = <span class="kw">unsafe </span>{ (data_ptr <span class="kw">as </span><span class="kw-2">*mut </span>G).as_mut() }.expect(<span class="string">"game was null in screen_open"</span>);
+    game.screen_open(<span class="kw-2">&amp;</span>Screen { _dummy: () });
+}
+
+<span class="attr">#[doc(hidden)]
+</span><span class="kw">pub fn </span>_screen_close&lt;G: Game&gt;(data_ptr: i32) {
+    <span class="kw">let </span>game = <span class="kw">unsafe </span>{ (data_ptr <span class="kw">as </span><span class="kw-2">*mut </span>G).as_mut() }.expect(<span class="string">"game was null in screen_close"</span>);
+    game.screen_close(<span class="kw-2">&amp;</span>Screen { _dummy: () });
+}</code></pre></div></section></main></body></html>
