@@ -1,5 +1,5 @@
 use glam::{Vec2, Vec3, Vec4};
-use mtg_rust::{Canvas, ClickType, Game, Screen};
+use mtg_rust::{Canvas, ClickType, Game, LogLevel, Screen};
 
 mtg_rust::game_impl!(RayTracer);
 
@@ -57,12 +57,24 @@ impl Game for RayTracer {
                 canvas.set_pixel_argb(x, y, color);
             }
         }
+    }
 
+    fn on_click(&mut self, _screen: &Screen, _click_type: ClickType, _x: i32, _y: i32) {}
+
+    fn draw_background(&mut self, _screen: &Screen, _canvas: &Canvas) {}
+
+    fn screen_tick(&mut self, _screen: &Screen) {
         self.degrees += 1;
         if self.degrees >= 360 {
             self.degrees = 0;
         }
     }
 
-    fn on_click(&mut self, _screen: &Screen, _click_type: ClickType, _x: i32, _y: i32) {}
+    fn screen_open(&mut self, _screen: &Screen) {
+        mtg_rust::log("opened ray tracer", LogLevel::Info);
+    }
+
+    fn screen_close(&mut self, _screen: &Screen) {
+        mtg_rust::log("closed ray tracer", LogLevel::Info);
+    }
 }

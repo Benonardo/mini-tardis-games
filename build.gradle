@@ -39,7 +39,7 @@ dependencies {
 
 	modImplementation "dev.enjarai:mini_tardis:1.0.0+1.20.1"
 
-	implementation(include("com.dylibso.chicory:runtime:0.0.6"))
+	implementation(include("com.dylibso.chicory:runtime:0.0.9"))
 }
 
 processResources {

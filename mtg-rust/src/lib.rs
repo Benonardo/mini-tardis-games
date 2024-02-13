@@ -183,6 +183,26 @@ macro_rules! game_impl {
         pub extern "C" fn mtg_on_click(data_ptr: i32, r#type: i32, x: i32, y: i32) {
             $crate::_on_click::<$game_type>(data_ptr, r#type, x, y);
         }
+
+        #[no_mangle]
+        pub extern "C" fn mtg_draw_background(data_ptr: i32,) {
+            $crate::_draw_background::<$game_type>(data_ptr);
+        }
+
+        #[no_mangle]
+        pub extern "C" fn mtg_screen_tick(data_ptr: i32,) {
+            $crate::_screen_tick::<$game_type>(data_ptr);
+        }
+
+        #[no_mangle]
+        pub extern "C" fn mtg_screen_open(data_ptr: i32,) {
+            $crate::_screen_open::<$game_type>(data_ptr);
+        }
+
+        #[no_mangle]
+        pub extern "C" fn mtg_screen_close(data_ptr: i32,) {
+            $crate::_screen_close::<$game_type>(data_ptr);
+        }
     };
 }
 
@@ -190,6 +210,16 @@ pub trait Game: Default {
     fn draw(&mut self, screen: &Screen, canvas: &Canvas);
 
     fn on_click(&mut self, screen: &Screen, click_type: ClickType, x: i32, y: i32);
+
+    fn draw_background(&mut self, _screen: &Screen, canvas: &Canvas) {
+        canvas.draw_inbuilt_sprite(0, 0, "app_background");
+    }
+
+    fn screen_tick(&mut self, _screen: &Screen) {}
+
+    fn screen_open(&mut self, _screen: &Screen) {}
+
+    fn screen_close(&mut self, _screen: &Screen) {}
 }
 
 #[doc(hidden)]
@@ -215,4 +245,28 @@ pub fn _on_click<G: Game>(data_ptr: i32, r#type: i32, x: i32, y: i32) {
         other => panic!("unknown click type {other}"),
     };
     game.on_click(&Screen { _dummy: () }, click_type, x, y);
+}
+
+#[doc(hidden)]
+pub fn _draw_background<G: Game>(data_ptr: i32) {
+    let game = unsafe { (data_ptr as *mut G).as_mut() }.expect("game was null in draw_background");
+    game.draw_background(&Screen { _dummy: () }, &Canvas { _dummy: () });
+}
+
+#[doc(hidden)]
+pub fn _screen_tick<G: Game>(data_ptr: i32) {
+    let game = unsafe { (data_ptr as *mut G).as_mut() }.expect("game was null in screen_tick");
+    game.screen_tick(&Screen { _dummy: () });
+}
+
+#[doc(hidden)]
+pub fn _screen_open<G: Game>(data_ptr: i32) {
+    let game = unsafe { (data_ptr as *mut G).as_mut() }.expect("game was null in screen_open");
+    game.screen_open(&Screen { _dummy: () });
+}
+
+#[doc(hidden)]
+pub fn _screen_close<G: Game>(data_ptr: i32) {
+    let game = unsafe { (data_ptr as *mut G).as_mut() }.expect("game was null in screen_close");
+    game.screen_close(&Screen { _dummy: () });
 }

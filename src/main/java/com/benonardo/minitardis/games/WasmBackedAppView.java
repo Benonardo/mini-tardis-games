@@ -27,6 +27,12 @@ public final class WasmBackedAppView implements AppView {
     private final ExportFunction onClick;
     @Nullable
     private final ExportFunction drawBackground;
+    @Nullable
+    private final ExportFunction screenTick;
+    @Nullable
+    private final ExportFunction screenOpen;
+    @Nullable
+    private final ExportFunction screenClose;
     private final int dataPtr;
     private final Instance instance;
     @Nullable
@@ -50,6 +56,21 @@ public final class WasmBackedAppView implements AppView {
             drawBackground = instance.export("mtg_draw_background");
         } catch (ChicoryException ignored) {}
         this.drawBackground = drawBackground;
+        var screenTick = (ExportFunction)null;
+        try {
+            screenTick = instance.export("mtg_screen_tick");
+        } catch (ChicoryException ignored) {}
+        this.screenTick = screenTick;
+        var screenOpen = (ExportFunction)null;
+        try {
+            screenOpen = instance.export("mtg_screen_open");
+        } catch (ChicoryException ignored) {}
+        this.screenOpen = screenOpen;
+        var screenClose = (ExportFunction)null;
+        try {
+            screenClose = instance.export("mtg_screen_close");
+        } catch (ChicoryException ignored) {}
+        this.screenClose = screenClose;
     }
 
     @Override
@@ -62,7 +83,7 @@ public final class WasmBackedAppView implements AppView {
             }
         } catch (Exception e) {
             MiniTardisGames.LOGGER.error("WASM draw", e);
-            throw new AssertionError();
+            blockEntity.closeApp();
         }
         this.canvas = null;
         this.blockEntity = null;
@@ -77,7 +98,7 @@ public final class WasmBackedAppView implements AppView {
             }
         } catch (Exception e) {
             MiniTardisGames.LOGGER.error("WASM on_click", e);
-            throw new AssertionError();
+            blockEntity.closeApp();
         }
         this.blockEntity = null;
         return false;
@@ -96,9 +117,63 @@ public final class WasmBackedAppView implements AppView {
                 }
             } catch (Exception e) {
                 MiniTardisGames.LOGGER.error("WASM draw_background", e);
-                throw new AssertionError();
+                blockEntity.closeApp();
             }
             this.canvas = null;
+            this.blockEntity = null;
+        }
+    }
+
+    @Override
+    public void screenTick(ScreenBlockEntity blockEntity) {
+        if (this.screenTick == null) {
+            AppView.super.screenTick(blockEntity);
+        } else {
+            this.blockEntity = blockEntity;
+            try {
+                synchronized (this) {
+                    screenTick.apply(Value.i32(dataPtr));
+                }
+            } catch (Exception e) {
+                MiniTardisGames.LOGGER.error("WASM screen_tick", e);
+                blockEntity.closeApp();
+            }
+            this.blockEntity = null;
+        }
+    }
+
+    @Override
+    public void screenOpen(ScreenBlockEntity blockEntity) {
+        if (this.screenOpen == null) {
+            AppView.super.screenOpen(blockEntity);
+        } else {
+            this.blockEntity = blockEntity;
+            try {
+                synchronized (this) {
+                    screenOpen.apply(Value.i32(dataPtr));
+                }
+            } catch (Exception e) {
+                MiniTardisGames.LOGGER.error("WASM screen_open", e);
+                blockEntity.closeApp();
+            }
+            this.blockEntity = null;
+        }
+    }
+
+    @Override
+    public void screenClose(ScreenBlockEntity blockEntity) {
+        if (this.screenClose == null) {
+            AppView.super.screenOpen(blockEntity);
+        } else {
+            this.blockEntity = blockEntity;
+            try {
+                synchronized (this) {
+                    screenClose.apply(Value.i32(dataPtr));
+                }
+            } catch (Exception e) {
+                MiniTardisGames.LOGGER.error("WASM screen_close", e);
+                blockEntity.closeApp();
+            }
             this.blockEntity = null;
         }
     }
