@@ -37,7 +37,7 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation "dev.enjarai:mini_tardis:1.0.0+1.20.1"
+	modImplementation "dev.enjarai:mini_tardis:1.0.2+1.20.1"
 
 	implementation(include("com.dylibso.chicory:runtime:0.0.9"))
 }

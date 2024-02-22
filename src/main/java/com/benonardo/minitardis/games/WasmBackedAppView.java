@@ -16,14 +16,20 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.event.Level;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 public final class WasmBackedAppView implements AppView {
 
+    @NotNull
+    private final CustomApp app;
+    @NotNull
     private final ExportFunction draw;
+    @NotNull
     private final ExportFunction onClick;
     @Nullable
     private final ExportFunction drawBackground;
@@ -40,7 +46,8 @@ public final class WasmBackedAppView implements AppView {
     @Nullable
     private ScreenBlockEntity blockEntity;
 
-    public WasmBackedAppView(Module module) {
+    public WasmBackedAppView(@NotNull CustomApp app, @NotNull Module module) {
+        this.app = app;
         var functions = this.new BuiltinFunctions();
         instance = module.instantiate(new HostImports(functions.all));
         this.draw = instance.export("mtg_draw");
@@ -73,51 +80,56 @@ public final class WasmBackedAppView implements AppView {
         this.screenClose = screenClose;
     }
 
+    private void handleThrowable(ScreenBlockEntity blockEntity, Throwable throwable, String function) {
+        var temp = throwable;
+        boolean shouldSuppress;
+        do {
+            shouldSuppress = temp instanceof AppClosedException;
+            temp = temp.getCause();
+        } while (!shouldSuppress && temp != null);
+
+        if (!shouldSuppress) {
+            MiniTardisGames.LOGGER.error("WASM " + function, throwable);
+            blockEntity.closeApp();
+        }
+    }
+
     @Override
-    public void draw(ScreenBlockEntity blockEntity, DrawableCanvas canvas) {
+    public synchronized void draw(ScreenBlockEntity blockEntity, DrawableCanvas canvas) {
         this.canvas = canvas;
         this.blockEntity = blockEntity;
         try {
-            synchronized (this) {
-                draw.apply(Value.i32(dataPtr));
-            }
-        } catch (Exception e) {
-            MiniTardisGames.LOGGER.error("WASM draw", e);
-            blockEntity.closeApp();
+            draw.apply(Value.i32(dataPtr));
+        } catch (Throwable throwable) {
+            handleThrowable(blockEntity, throwable, "draw");
         }
         this.canvas = null;
         this.blockEntity = null;
     }
 
     @Override
-    public boolean onClick(ScreenBlockEntity blockEntity, ServerPlayerEntity player, ClickType type, int x, int y) {
+    public synchronized boolean onClick(ScreenBlockEntity blockEntity, ServerPlayerEntity player, ClickType type, int x, int y) {
         this.blockEntity = blockEntity;
         try {
-            synchronized (this) {
-                onClick.apply(Value.i32(dataPtr), Value.i32(type.ordinal()), Value.i32(x), Value.i32(y));
-            }
-        } catch (Exception e) {
-            MiniTardisGames.LOGGER.error("WASM on_click", e);
-            blockEntity.closeApp();
+            onClick.apply(Value.i32(dataPtr), Value.i32(type.ordinal()), Value.i32(x), Value.i32(y));
+        } catch (Throwable throwable) {
+            handleThrowable(blockEntity, throwable, "on_click");
         }
         this.blockEntity = null;
         return false;
     }
 
     @Override
-    public void drawBackground(ScreenBlockEntity blockEntity, DrawableCanvas canvas) {
+    public synchronized void drawBackground(ScreenBlockEntity blockEntity, DrawableCanvas canvas) {
         if (this.drawBackground == null) {
             AppView.super.drawBackground(blockEntity, canvas);
         } else {
             this.canvas = canvas;
             this.blockEntity = blockEntity;
             try {
-                synchronized (this) {
-                    drawBackground.apply(Value.i32(dataPtr));
-                }
-            } catch (Exception e) {
-                MiniTardisGames.LOGGER.error("WASM draw_background", e);
-                blockEntity.closeApp();
+                drawBackground.apply(Value.i32(dataPtr));
+            } catch (Throwable throwable) {
+                handleThrowable(blockEntity, throwable, "draw_background");
             }
             this.canvas = null;
             this.blockEntity = null;
@@ -125,54 +137,45 @@ public final class WasmBackedAppView implements AppView {
     }
 
     @Override
-    public void screenTick(ScreenBlockEntity blockEntity) {
+    public synchronized void screenTick(ScreenBlockEntity blockEntity) {
         if (this.screenTick == null) {
             AppView.super.screenTick(blockEntity);
         } else {
             this.blockEntity = blockEntity;
             try {
-                synchronized (this) {
-                    screenTick.apply(Value.i32(dataPtr));
-                }
-            } catch (Exception e) {
-                MiniTardisGames.LOGGER.error("WASM screen_tick", e);
-                blockEntity.closeApp();
+                screenTick.apply(Value.i32(dataPtr));
+            } catch (Throwable throwable) {
+                handleThrowable(blockEntity, throwable, "screen_tick");
             }
             this.blockEntity = null;
         }
     }
 
     @Override
-    public void screenOpen(ScreenBlockEntity blockEntity) {
+    public synchronized void screenOpen(ScreenBlockEntity blockEntity) {
         if (this.screenOpen == null) {
             AppView.super.screenOpen(blockEntity);
         } else {
             this.blockEntity = blockEntity;
             try {
-                synchronized (this) {
-                    screenOpen.apply(Value.i32(dataPtr));
-                }
-            } catch (Exception e) {
-                MiniTardisGames.LOGGER.error("WASM screen_open", e);
-                blockEntity.closeApp();
+                screenOpen.apply(Value.i32(dataPtr));
+            } catch (Throwable throwable) {
+                handleThrowable(blockEntity, throwable, "screen_open");
             }
             this.blockEntity = null;
         }
     }
 
     @Override
-    public void screenClose(ScreenBlockEntity blockEntity) {
+    public synchronized void screenClose(ScreenBlockEntity blockEntity) {
         if (this.screenClose == null) {
             AppView.super.screenOpen(blockEntity);
         } else {
             this.blockEntity = blockEntity;
             try {
-                synchronized (this) {
-                    screenClose.apply(Value.i32(dataPtr));
-                }
-            } catch (Exception e) {
-                MiniTardisGames.LOGGER.error("WASM screen_close", e);
-                blockEntity.closeApp();
+                screenClose.apply(Value.i32(dataPtr));
+            } catch (Throwable throwable) {
+                handleThrowable(blockEntity, throwable, "screen_close");
             }
             this.blockEntity = null;
         }
@@ -182,9 +185,9 @@ public final class WasmBackedAppView implements AppView {
 
         public final HostFunction log = new HostFunction(
                 (instance, args) -> {
-                    var message_address = args[0].asInt();
-                    var message_len = args[1].asInt();
-                    var message = instance.memory().readString(message_address, message_len);
+                    var messageAddress = args[0].asInt();
+                    var messageLen = args[1].asInt();
+                    var message = instance.memory().readString(messageAddress, messageLen);
                     var level = args[2].asInt();
                     MiniTardisGames.LOGGER.atLevel(Level.intToLevel(level)).log(message);
                     return Value.EMPTY_VALUES;
@@ -302,9 +305,9 @@ public final class WasmBackedAppView implements AppView {
                     }
                     var x = args[0].asInt();
                     var y = args[1].asInt();
-                    var name_address = args[2].asInt();
-                    var name_len = args[3].asInt();
-                    var name = instance.memory().readString(name_address, name_len);
+                    var nameAddress = args[2].asInt();
+                    var nameLen = args[3].asInt();
+                    var name = instance.memory().readString(nameAddress, nameLen);
                     CanvasUtils.draw(canvas, x, y, TardisCanvasUtils.getSprite(name));
                     return Value.EMPTY_VALUES;
                 },
@@ -320,9 +323,9 @@ public final class WasmBackedAppView implements AppView {
                     }
                     var x = args[0].asInt();
                     var y = args[1].asInt();
-                    var textaddress = args[2].asInt();
+                    var textAddress = args[2].asInt();
                     var textLen = args[3].asInt();
-                    var text = instance.memory().readString(textaddress, textLen);
+                    var text = instance.memory().readString(textAddress, textLen);
                     var size = args[4].asInt();
                     var argb = args[5].asInt();
                     DefaultFonts.VANILLA.drawText(canvas, text, x, y, size, CanvasUtils.findClosestColorARGB(argb));
@@ -335,12 +338,12 @@ public final class WasmBackedAppView implements AppView {
         );
         public final HostFunction playSound = new HostFunction(
                 (instance, args) -> {
-                    if (blockEntity == null) {
+                    if (blockEntity == null || blockEntity.getWorld() == null) {
                         throw new IllegalStateException("Called play_sound(id_address, id_len, category, volume, pitch) while not currently in a context???");
                     }
-                    var id_address = args[0].asInt();
-                    var id_len = args[1].asInt();
-                    var id = instance.memory().readString(id_address, id_len);
+                    var idAddress = args[0].asInt();
+                    var idLen = args[1].asInt();
+                    var id = instance.memory().readString(idAddress, idLen);
                     var category = SoundCategory.values()[args[2].asInt()];
                     var volume = args[3].asFloat();
                     var pitch = args[4].asFloat();
@@ -352,6 +355,19 @@ public final class WasmBackedAppView implements AppView {
                 List.of(ValueType.I32, ValueType.I32, ValueType.I32, ValueType.F32, ValueType.F32),
                 List.of()
         );
+        public final HostFunction closeApp = new HostFunction(
+                (instance, args) -> {
+                    if (blockEntity == null) {
+                        throw new IllegalStateException("Called close_app() while not currently in a context???");
+                    }
+                    blockEntity.closeApp();
+                    throw new AppClosedException();
+                },
+                "mini_tardis_games",
+                "mtg_close_app",
+                List.of(),
+                List.of(ValueType.I64)
+        );
         public final HostFunction nanoTime = new HostFunction(
                 (instance, args) -> new Value[]{Value.i64(System.nanoTime())},
                 "mini_tardis_games",
@@ -359,10 +375,49 @@ public final class WasmBackedAppView implements AppView {
                 List.of(),
                 List.of(ValueType.I64)
         );
-        public final HostFunction[] all = {log, randomI32, getWidth, getHeight, getRaw, setRaw, setRgb, setArgb, drawInbuiltSprite, drawText, playSound, nanoTime};
+        public final HostFunction savePersistentData = new HostFunction(
+                (instance, args) -> {
+                    var dataAddress = args[0].asInt();
+                    var dataLen = args[1].asInt();
+                    var data = instance.memory().readBytes(dataAddress, dataLen);
+                    app.setPersistentData(ByteBuffer.wrap(data));
+                    return Value.EMPTY_VALUES;
+                },
+                "mini_tardis_games",
+                "mtg_save_persistent_data",
+                List.of(ValueType.I32, ValueType.I32),
+                List.of()
+        );
+        public final HostFunction getPersistentDataLen = new HostFunction(
+                (instance, args) -> new Value[]{Value.i32(app.getPersistentData().limit())},
+                "mini_tardis_games",
+                "mtg_get_persistent_data_len",
+                List.of(),
+                List.of(ValueType.I32)
+        );
+        public final HostFunction getPersistentData = new HostFunction(
+                (instance, args) -> {
+                    var dataAddress = args[0].asInt();
+                    instance.memory().write(dataAddress, app.getPersistentData().array());
+                    return Value.EMPTY_VALUES;
+                },
+                "mini_tardis_games",
+                "mtg_get_persistent_data",
+                List.of(ValueType.I32),
+                List.of()
+        );
+        public final HostFunction[] all = {
+                log, randomI32, getWidth, getHeight, getRaw, setRaw, setRgb, setArgb,
+                drawInbuiltSprite, drawText, playSound, closeApp, nanoTime, savePersistentData, getPersistentDataLen,
+                getPersistentData
+        };
 
         private BuiltinFunctions() {
         }
+
+    }
+
+    private static class AppClosedException extends RuntimeException {
 
     }
 }

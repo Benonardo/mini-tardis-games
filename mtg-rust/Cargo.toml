@@ -2,7 +2,8 @@
 name = "mtg-rust"
 version = "0.1.0"
 edition = "2021"
+repository.workspace = true
 
 [workspace]
-members = ["raytracer"]
+members = ["mtg-counter"]
 package.repository = "https://github.com/Benonardo/mini-tardis-games"

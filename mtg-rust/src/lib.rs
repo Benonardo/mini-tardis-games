@@ -14,6 +14,17 @@ fn convert_str(str: &str) -> (i32, i32) {
     (address, len)
 }
 
+fn convert_bytes(bytes: &[u8]) -> (i32, i32) {
+    let address = (bytes.as_ptr() as usize)
+        .try_into()
+        .expect("couldn't convert bytes pointer to i32");
+    let len = bytes
+        .len()
+        .try_into()
+        .expect("couldn't convert bytes len to i32");
+    (address, len)
+}
+
 /// A level of importance for the [`log`] function.  
 /// Analogous to SLF4J's [`Level`](https://www.javadoc.io/doc/org.slf4j/slf4j-api/latest/org.slf4j/org/slf4j/event/Level.html) enum.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -40,6 +51,33 @@ pub fn log(message: &str, level: LogLevel) {
 #[must_use]
 pub fn nano_time() -> i64 {
     unsafe { ffi::mtg_nano_time() }
+}
+
+pub fn save_persistent_data(data: &[u8]) {
+    let (data_address, data_len) = convert_bytes(data);
+    unsafe { ffi::mtg_save_persistent_data(data_address, data_len) }
+}
+
+#[must_use]
+pub fn get_persistent_data() -> Vec<u8> {
+    let len = unsafe { ffi::mtg_get_persistent_data_len() };
+    // shortcut to save one host function call
+    if len == 0 {
+        return Vec::new();
+    }
+    let mut data = vec![
+        0;
+        len.try_into()
+            .expect("couldn't convert persistent data length to i32")
+    ];
+    unsafe {
+        ffi::mtg_get_persistent_data(
+            (data.as_mut_ptr() as usize)
+                .try_into()
+                .expect("couldn't convert persistent data pointer to i32"),
+        )
+    };
+    data
 }
 
 /// A category for a certain sound event, used by [`Screen::play_sound`].  
@@ -79,6 +117,12 @@ impl Screen {
         unsafe {
             ffi::mtg_play_sound(id_address, id_len, category as i32, volume, pitch);
         }
+    }
+
+    /// Closes this app/game.
+    /// This function never returns due to the [`!`] type.
+    pub fn close(&self) -> ! {
+        unsafe { ffi::mtg_close_app() }
     }
 }
 
@@ -185,28 +229,32 @@ macro_rules! game_impl {
         }
 
         #[no_mangle]
-        pub extern "C" fn mtg_draw_background(data_ptr: i32,) {
+        pub extern "C" fn mtg_draw_background(data_ptr: i32) {
             $crate::_draw_background::<$game_type>(data_ptr);
         }
 
         #[no_mangle]
-        pub extern "C" fn mtg_screen_tick(data_ptr: i32,) {
+        pub extern "C" fn mtg_screen_tick(data_ptr: i32) {
             $crate::_screen_tick::<$game_type>(data_ptr);
         }
 
         #[no_mangle]
-        pub extern "C" fn mtg_screen_open(data_ptr: i32,) {
+        pub extern "C" fn mtg_screen_open(data_ptr: i32) {
             $crate::_screen_open::<$game_type>(data_ptr);
         }
 
         #[no_mangle]
-        pub extern "C" fn mtg_screen_close(data_ptr: i32,) {
+        pub extern "C" fn mtg_screen_close(data_ptr: i32) {
             $crate::_screen_close::<$game_type>(data_ptr);
         }
     };
 }
 
-pub trait Game: Default {
+pub trait Game {
+    fn initialize() -> Self
+    where
+        Self: Sized;
+
     fn draw(&mut self, screen: &Screen, canvas: &Canvas);
 
     fn on_click(&mut self, screen: &Screen, click_type: ClickType, x: i32, y: i32);
@@ -227,7 +275,7 @@ pub trait Game: Default {
 pub fn _register_game<G: Game>() -> i32 {
     std::panic::set_hook(Box::new(|info| log(&info.to_string(), LogLevel::Error)));
 
-    Box::leak(Box::<G>::default()) as *mut _ as i32
+    Box::leak(Box::<G>::new(G::initialize())) as *mut _ as i32
 }
 
 #[doc(hidden)]
