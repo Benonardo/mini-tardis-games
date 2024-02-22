@@ -271,6 +271,54 @@
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The rust crate for the Mini Tardis Games addon of the Minecraft mod Mini Tardis.  
 //! Setup your [`Game`] using [`game_impl`] and you're ready to go!
 
@@ -284,6 +332,17 @@
         .len()
         .try_into()
         .expect(<span class="string">"couldn't convert string len to i32"</span>);
+    (address, len)
+}
+
+<span class="kw">fn </span>convert_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; (i32, i32) {
+    <span class="kw">let </span>address = (bytes.as_ptr() <span class="kw">as </span>usize)
+        .try_into()
+        .expect(<span class="string">"couldn't convert bytes pointer to i32"</span>);
+    <span class="kw">let </span>len = bytes
+        .len()
+        .try_into()
+        .expect(<span class="string">"couldn't convert bytes len to i32"</span>);
     (address, len)
 }
 
@@ -313,6 +372,33 @@
 </span><span class="attr">#[must_use]
 </span><span class="kw">pub fn </span>nano_time() -&gt; i64 {
     <span class="kw">unsafe </span>{ ffi::mtg_nano_time() }
+}
+
+<span class="kw">pub fn </span>save_persistent_data(data: <span class="kw-2">&amp;</span>[u8]) {
+    <span class="kw">let </span>(data_address, data_len) = convert_bytes(data);
+    <span class="kw">unsafe </span>{ ffi::mtg_save_persistent_data(data_address, data_len) }
+}
+
+<span class="attr">#[must_use]
+</span><span class="kw">pub fn </span>get_persistent_data() -&gt; Vec&lt;u8&gt; {
+    <span class="kw">let </span>len = <span class="kw">unsafe </span>{ ffi::mtg_get_persistent_data_len() };
+    <span class="comment">// shortcut to save one host function call
+    </span><span class="kw">if </span>len == <span class="number">0 </span>{
+        <span class="kw">return </span>Vec::new();
+    }
+    <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[
+        <span class="number">0</span>;
+        len.try_into()
+            .expect(<span class="string">"couldn't convert persistent data length to i32"</span>)
+    ];
+    <span class="kw">unsafe </span>{
+        ffi::mtg_get_persistent_data(
+            (data.as_mut_ptr() <span class="kw">as </span>usize)
+                .try_into()
+                .expect(<span class="string">"couldn't convert persistent data pointer to i32"</span>),
+        )
+    };
+    data
 }
 
 <span class="doccomment">/// A category for a certain sound event, used by [`Screen::play_sound`].  
@@ -352,6 +438,12 @@
         <span class="kw">unsafe </span>{
             ffi::mtg_play_sound(id_address, id_len, category <span class="kw">as </span>i32, volume, pitch);
         }
+    }
+
+    <span class="doccomment">/// Closes this app/game.
+    /// This function never returns due to the [`!`] type.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ! {
+        <span class="kw">unsafe </span>{ ffi::mtg_close_app() }
     }
 }
 
@@ -458,28 +550,32 @@
         }
 
         <span class="attr">#[no_mangle]
-        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_draw_background(data_ptr: i32,) {
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_draw_background(data_ptr: i32) {
             <span class="macro-nonterminal">$crate::_draw_background</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
         }
 
         <span class="attr">#[no_mangle]
-        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_tick(data_ptr: i32,) {
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_tick(data_ptr: i32) {
             <span class="macro-nonterminal">$crate::_screen_tick</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
         }
 
         <span class="attr">#[no_mangle]
-        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_open(data_ptr: i32,) {
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_open(data_ptr: i32) {
             <span class="macro-nonterminal">$crate::_screen_open</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
         }
 
         <span class="attr">#[no_mangle]
-        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_close(data_ptr: i32,) {
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>mtg_screen_close(data_ptr: i32) {
             <span class="macro-nonterminal">$crate::_screen_close</span>::&lt;<span class="macro-nonterminal">$game_type</span>&gt;(data_ptr);
         }
     };
 }
 
-<span class="kw">pub trait </span>Game: Default {
+<span class="kw">pub trait </span>Game {
+    <span class="kw">fn </span>initialize() -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span><span class="self">Self</span>: Sized;
+
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, screen: <span class="kw-2">&amp;</span>Screen, canvas: <span class="kw-2">&amp;</span>Canvas);
 
     <span class="kw">fn </span>on_click(<span class="kw-2">&amp;mut </span><span class="self">self</span>, screen: <span class="kw-2">&amp;</span>Screen, click_type: ClickType, x: i32, y: i32);
@@ -500,7 +596,7 @@
 </span><span class="kw">pub fn </span>_register_game&lt;G: Game&gt;() -&gt; i32 {
     std::panic::set_hook(Box::new(|info| log(<span class="kw-2">&amp;</span>info.to_string(), LogLevel::Error)));
 
-    Box::leak(Box::&lt;G&gt;::default()) <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span>i32
+    Box::leak(Box::&lt;G&gt;::new(G::initialize())) <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span>i32
 }
 
 <span class="attr">#[doc(hidden)]
@@ -542,4 +638,5 @@
 </span><span class="kw">pub fn </span>_screen_close&lt;G: Game&gt;(data_ptr: i32) {
     <span class="kw">let </span>game = <span class="kw">unsafe </span>{ (data_ptr <span class="kw">as </span><span class="kw-2">*mut </span>G).as_mut() }.expect(<span class="string">"game was null in screen_close"</span>);
     game.screen_close(<span class="kw-2">&amp;</span>Screen { _dummy: () });
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

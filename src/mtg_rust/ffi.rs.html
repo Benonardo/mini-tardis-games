@@ -16,13 +16,21 @@
 <a href="#15" id="15">15</a>
 <a href="#16" id="16">16</a>
 <a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
 </pre></div><pre class="rust"><code><span class="attr">#[link(wasm_import_module = <span class="string">"mini_tardis_games"</span>)]
 </span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_log(message_address: i32, message_len: i32, level: i32);
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_nano_time() -&gt; i64;
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_save_persistent_data(data_address: i32, data_len: i32);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_get_persistent_data_len() -&gt; i32;
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_get_persistent_data(data_address: i32);
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_random_i32() -&gt; i32;
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_play_sound(id_address: i32, id_len: i32, category: i32, volume: f32, pitch: f32);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_close_app() -&gt; !;
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_get_width() -&gt; i32;
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mtg_get_height() -&gt; i32;

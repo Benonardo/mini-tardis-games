@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ClickType","LogLevel","SoundCategory"],"fn":["log","nano_time"],"macro":["game_impl"],"struct":["Canvas","Screen"],"trait":["Game"]};
+window.SIDEBAR_ITEMS = {"enum":["ClickType","LogLevel","SoundCategory"],"fn":["get_persistent_data","log","nano_time","save_persistent_data"],"macro":["game_impl"],"struct":["Canvas","Screen"],"trait":["Game"]};
