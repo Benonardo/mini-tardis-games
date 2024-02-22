@@ -38,7 +38,7 @@ public class MiniTardisGames implements ModInitializer {
 
             try {
                 FloppyItem.removeApp(handStack, 0);
-                FloppyItem.addApp(handStack, new CustomApp(ByteBuffer.wrap(Files.readAllBytes(getFile("testgame.wasm")))));
+                FloppyItem.addApp(handStack, new CustomApp(ByteBuffer.wrap(Files.readAllBytes(getFile("testgame.wasm.gz")))));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

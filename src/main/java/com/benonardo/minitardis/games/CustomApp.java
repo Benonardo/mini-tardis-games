@@ -9,7 +9,10 @@ import dev.enjarai.minitardis.component.screen.app.ScreenApp;
 import dev.enjarai.minitardis.component.screen.app.ScreenAppType;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.zip.GZIPInputStream;
 
 public final class CustomApp implements ScreenApp {
 
@@ -52,7 +55,11 @@ public final class CustomApp implements ScreenApp {
 
     @Override
     public AppView getView(TardisControl controls) {
-        return new WasmBackedAppView(this, Module.builder(wasm).build());
+        try (var stream = new GZIPInputStream(new ByteArrayInputStream(wasm.array()))) {
+            return new WasmBackedAppView(this, Module.builder(stream.readAllBytes()).build());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
