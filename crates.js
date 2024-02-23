@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["mtg_counter","mtg_rust"];
+window.ALL_CRATES = ["mtg_bad_apple","mtg_counter","mtg_rust"];
