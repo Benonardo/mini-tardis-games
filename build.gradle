@@ -23,10 +23,12 @@ repositories {
 }
 
 loom {
-	serverOnlyMinecraftJar()
+	splitEnvironmentSourceSets()
 
-	runs {
-		remove client
+	mods {
+		"mini-tardis-games" {
+			sourceSet sourceSets.main
+		}
 	}
 }
 

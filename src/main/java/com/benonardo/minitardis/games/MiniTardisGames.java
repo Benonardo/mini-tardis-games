@@ -5,17 +5,17 @@ import dev.enjarai.minitardis.item.FloppyItem;
 import dev.enjarai.minitardis.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.registry.Registry;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class MiniTardisGames implements ModInitializer {
@@ -26,7 +26,9 @@ public class MiniTardisGames implements ModInitializer {
 	public void onInitialize() {
 		Registry.register(ScreenAppType.REGISTRY, new Identifier(MOD_ID, "custom"), CustomApp.TYPE);
 
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(CommandManager.literal("testgame").executes(context -> {
+        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new GameManager());
+
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(CommandManager.literal("minitardisgames").then(CommandManager.literal("install").then(CommandManager.argument("game", IdentifierArgumentType.identifier()).executes(context -> {
             var player = context.getSource().getPlayer();
             if (player == null) return 0;
 
@@ -36,14 +38,14 @@ public class MiniTardisGames implements ModInitializer {
                 return 0;
             }
 
-            try {
-                FloppyItem.removeApp(handStack, 0);
-                FloppyItem.addApp(handStack, new CustomApp(ByteBuffer.wrap(Files.readAllBytes(getFile("testgame.wasm.gz")))));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            FloppyItem.removeApp(handStack, 0);
+            FloppyItem.addApp(handStack, new CustomApp(IdentifierArgumentType.getIdentifier(context, "game")));
             return 1;
-        })));
+        }))).then(CommandManager.literal("list").executes(context -> {
+            context.getSource().sendMessage(Text.literal(GameManager.GAMES.toString()));
+
+            return 1;
+        }))));
 	}
 
 	public static Path getFile(String path) {
