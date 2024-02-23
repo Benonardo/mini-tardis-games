@@ -3,6 +3,7 @@ package com.benonardo.minitardis.games;
 import dev.enjarai.minitardis.component.screen.app.ScreenAppType;
 import dev.enjarai.minitardis.item.FloppyItem;
 import dev.enjarai.minitardis.item.ModItems;
+import eu.pb4.mapcanvas.api.core.CanvasColor;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -24,6 +25,14 @@ public class MiniTardisGames implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.BLACK_LOWEST.getRenderColor()));
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.BLACK_LOW.getRenderColor()));
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.BLACK_NORMAL.getRenderColor()));
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.BLACK_HIGH.getRenderColor()));
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.WHITE_LOWEST.getRenderColor()));
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.WHITE_LOW.getRenderColor()));
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.WHITE_NORMAL.getRenderColor()));
+        MiniTardisGames.LOGGER.info(String.valueOf(CanvasColor.WHITE_HIGH.getRenderColor()));
 		Registry.register(ScreenAppType.REGISTRY, new Identifier(MOD_ID, "custom"), CustomApp.TYPE);
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new GameManager());

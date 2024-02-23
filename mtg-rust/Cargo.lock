@@ -3,6 +3,13 @@
 version = 3
 
 [[package]]
+name = "mtg-bad-apple"
+version = "0.1.0"
+dependencies = [
+ "mtg-rust",
+]
+
+[[package]]
 name = "mtg-counter"
 version = "0.1.0"
 dependencies = [

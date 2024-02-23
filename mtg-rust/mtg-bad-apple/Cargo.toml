@@ -1,0 +1,11 @@
+[package]
+name = "mtg-bad-apple"
+version = "0.1.0"
+edition = "2021"
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mtg-rust ={ path = "../" }

@@ -5,5 +5,5 @@ edition = "2021"
 repository.workspace = true
 
 [workspace]
-members = ["mtg-counter"]
+members = [ "mtg-bad-apple","mtg-counter"]
 package.repository = "https://github.com/Benonardo/mini-tardis-games"
