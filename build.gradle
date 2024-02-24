@@ -26,7 +26,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"mini-tardis-games" {
+		"mini_tardis_games" {
 			sourceSet sourceSets.main
 		}
 	}
@@ -39,9 +39,9 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation "dev.enjarai:mini_tardis:1.0.2+1.20.1"
+	modImplementation "dev.enjarai:mini_tardis:${project.mini_tardis_version}"
 
-	implementation(include("com.dylibso.chicory:runtime:0.0.9"))
+	implementation(include("com.dylibso.chicory:runtime:${project.chicory_version}"))
 }
 
 processResources {

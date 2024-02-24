@@ -11,7 +11,7 @@ const WHITE_LOW: i32 = 32;
 const WHITE_NORMAL: i32 = 33;
 const WHITE_HIGH: i32 = 34;
 
-const fn get_raw_color(frame: i32, x: i32, y: i32) -> i32 {
+const fn get_raw_color(frame: u32, x: u32, y: u32) -> i32 {
     let pixel = file::get_pixel(frame, x, y);
     match pixel {
         0 => BLACK_LOWEST,
@@ -33,15 +33,16 @@ struct BadApple {
 }
 
 impl Game for BadApple {
-    fn initialize() -> Self
-    where
-        Self: Sized,
-    {
-        Default::default()
+    fn initialize() -> Self {
+        Self::default()
     }
 
     fn draw(&mut self, screen: &mtg_rust::Screen, canvas: &mtg_rust::Canvas) {
-        let frame = self.frame_counter.clamp(0, file::FRAME_COUNT);
+        let frame = self
+            .frame_counter
+            .clamp(0, file::FRAME_COUNT)
+            .try_into()
+            .expect("couldn't convert frame i32 to u32");
 
         let canvas_width = canvas.get_width();
         let canvas_height = canvas.get_height();
@@ -80,6 +81,7 @@ impl Game for BadApple {
         _click_type: mtg_rust::ClickType,
         _x: i32,
         _y: i32,
-    ) {
+    ) -> bool {
+        false
     }
 }

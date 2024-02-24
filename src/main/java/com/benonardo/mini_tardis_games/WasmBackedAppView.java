@@ -1,4 +1,4 @@
-package com.benonardo.minitardis.games;
+package com.benonardo.mini_tardis_games;
 
 import com.dylibso.chicory.runtime.*;
 import com.dylibso.chicory.runtime.Module;
@@ -102,21 +102,23 @@ public final class WasmBackedAppView implements AppView {
             draw.apply(Value.i32(dataPtr));
         } catch (Throwable throwable) {
             handleThrowable(blockEntity, throwable, "draw");
+        } finally {
+            this.canvas = null;
+            this.blockEntity = null;
         }
-        this.canvas = null;
-        this.blockEntity = null;
     }
 
     @Override
     public synchronized boolean onClick(ScreenBlockEntity blockEntity, ServerPlayerEntity player, ClickType type, int x, int y) {
         this.blockEntity = blockEntity;
         try {
-            onClick.apply(Value.i32(dataPtr), Value.i32(type.ordinal()), Value.i32(x), Value.i32(y));
+            return onClick.apply(Value.i32(dataPtr), Value.i32(type.ordinal()), Value.i32(x), Value.i32(y))[0].asInt() != 0;
         } catch (Throwable throwable) {
             handleThrowable(blockEntity, throwable, "on_click");
+            return false;
+        } finally {
+            this.blockEntity = null;
         }
-        this.blockEntity = null;
-        return false;
     }
 
     @Override
@@ -130,9 +132,10 @@ public final class WasmBackedAppView implements AppView {
                 drawBackground.apply(Value.i32(dataPtr));
             } catch (Throwable throwable) {
                 handleThrowable(blockEntity, throwable, "draw_background");
+            } finally {
+                this.canvas = null;
+                this.blockEntity = null;
             }
-            this.canvas = null;
-            this.blockEntity = null;
         }
     }
 
@@ -146,8 +149,9 @@ public final class WasmBackedAppView implements AppView {
                 screenTick.apply(Value.i32(dataPtr));
             } catch (Throwable throwable) {
                 handleThrowable(blockEntity, throwable, "screen_tick");
+            } finally {
+                this.blockEntity = null;
             }
-            this.blockEntity = null;
         }
     }
 
@@ -161,8 +165,9 @@ public final class WasmBackedAppView implements AppView {
                 screenOpen.apply(Value.i32(dataPtr));
             } catch (Throwable throwable) {
                 handleThrowable(blockEntity, throwable, "screen_open");
+            } finally {
+                this.blockEntity = null;
             }
-            this.blockEntity = null;
         }
     }
 
@@ -176,8 +181,9 @@ public final class WasmBackedAppView implements AppView {
                 screenClose.apply(Value.i32(dataPtr));
             } catch (Throwable throwable) {
                 handleThrowable(blockEntity, throwable, "screen_close");
+            } finally {
+                this.blockEntity = null;
             }
-            this.blockEntity = null;
         }
     }
 

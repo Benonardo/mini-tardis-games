@@ -9,8 +9,6 @@ struct Counter {
 
 impl Game for Counter {
     fn initialize() -> Self
-    where
-        Self: Sized,
     {
         let data = mtg_rust::get_persistent_data();
         let count = if data.is_empty() {
@@ -32,8 +30,8 @@ impl Game for Counter {
             0,
             0,
             &self.cached_str,
-            96 / self.cached_str.len() as i32,
-            0xFFFFFFFFu32 as i32,
+            96 / u32::try_from(self.cached_str.len()).expect("couldn't convert cached str size to u32"),
+            0xFF_FF_FF_FFu32,
         );
     }
 
@@ -43,12 +41,14 @@ impl Game for Counter {
         _click_type: mtg_rust::ClickType,
         _x: i32,
         _y: i32,
-    ) {
+    ) -> bool {
         self.count += 1;
         self.cached_str = self.count.to_string();
+
+        true
     }
 
     fn screen_close(&mut self, _screen: &mtg_rust::Screen) {
-        mtg_rust::save_persistent_data(&self.count.to_ne_bytes())
+        mtg_rust::save_persistent_data(&self.count.to_ne_bytes());
     }
 }

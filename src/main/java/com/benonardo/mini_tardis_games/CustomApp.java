@@ -1,4 +1,4 @@
-package com.benonardo.minitardis.games;
+package com.benonardo.mini_tardis_games;
 
 import com.dylibso.chicory.runtime.Module;
 import com.mojang.serialization.Codec;
@@ -24,7 +24,7 @@ import java.util.zip.GZIPInputStream;
 
 public final class CustomApp implements ScreenApp {
 
-    private static final Identifier INVALID_GAME = new Identifier("mini-tardis-games", "missingno");
+    private static final Identifier INVALID_GAME = new Identifier("mini_tardis_games", "missingno");
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.wrap(new byte[0]);
     public static final Codec<CustomApp> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.fieldOf("app_id").forGetter(CustomApp::getAppId),

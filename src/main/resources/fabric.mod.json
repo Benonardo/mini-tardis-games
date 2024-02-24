@@ -1,34 +1,30 @@
 {
 	"schemaVersion": 1,
-	"id": "mini-tardis-games",
+	"id": "mini_tardis_games",
 	"version": "${version}",
-	"name": "Mini Tardis: Games",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Mini Tardis Games",
+	"description": "WASM Games Addon for the Mini Tardis Mod",
 	"authors": [
-		"Me!"
+		"Benonardo"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/Benonardo/mini-tardis-games"
 	},
-	"license": "CC0-1.0",
-	"icon": "assets/mini-tardis-games/icon.png",
+	"license": "MIT",
+	"icon": "assets/mini_tardis_games/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.benonardo.minitardis.games.MiniTardisGames"
+          "com.benonardo.mini_tardis_games.MiniTardisGames"
 		]
 	},
 	"mixins": [
-		"mini-tardis-games.mixins.json"
+		"mini_tardis_games.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.15.6",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }

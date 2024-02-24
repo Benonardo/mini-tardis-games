@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2021"
 repository.workspace = true
 
+[profile.release]
+lto = true
+codegen-units = 1
+
 [workspace]
 members = [ "mtg-bad-apple","mtg-counter"]
 package.repository = "https://github.com/Benonardo/mini-tardis-games"

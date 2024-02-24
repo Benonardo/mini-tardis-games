@@ -1,4 +1,4 @@
-package com.benonardo.minitardis.games;
+package com.benonardo.mini_tardis_games;
 
 import dev.enjarai.minitardis.component.screen.app.ScreenAppType;
 import dev.enjarai.minitardis.item.FloppyItem;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 
 public class MiniTardisGames implements ModInitializer {
-	public static final String MOD_ID = "mini-tardis-games";
+	public static final String MOD_ID = "mini_tardis_games";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override

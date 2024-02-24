@@ -1,6 +1,8 @@
 //! The rust crate for the Mini Tardis Games addon of the Minecraft mod Mini Tardis.  
 //! Setup your [`Game`] using [`game_impl`] and you're ready to go!
 
+#![allow(clippy::missing_panics_doc)]
+
 mod ffi;
 
 fn convert_str(str: &str) -> (i32, i32) {
@@ -75,8 +77,8 @@ pub fn get_persistent_data() -> Vec<u8> {
             (data.as_mut_ptr() as usize)
                 .try_into()
                 .expect("couldn't convert persistent data pointer to i32"),
-        )
-    };
+        );
+    }
     data
 }
 
@@ -136,66 +138,106 @@ impl Canvas {
     /// Get the width of the canvas, usually 128.  
     /// Analogous to the canvas' [`getWidth`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L34) method.
     #[must_use]
-    pub fn get_width(&self) -> i32 {
-        unsafe { ffi::mtg_get_width() }
+    pub fn get_width(&self) -> u32 {
+        unsafe {
+            ffi::mtg_get_width()
+                .try_into()
+                .expect("couldn't cast canvas width to u32")
+        }
     }
 
     /// Get the height of the canvas, usually 96.  
     /// Analogous to the canvas' [`getHeight`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L32) method.
     #[must_use]
-    pub fn get_height(&self) -> i32 {
-        unsafe { ffi::mtg_get_height() }
+    pub fn get_height(&self) -> u32 {
+        unsafe {
+            ffi::mtg_get_height()
+                .try_into()
+                .expect("couldn't cast canvas height to u32")
+        }
     }
 
     /// Get the raw color value at the certain `x` and `y` coordinates.  
     /// Analogous to the canvas' [`getRaw`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L28) method.
     #[must_use]
-    pub fn get_raw_color(&self, x: i32, y: i32) -> i32 {
-        unsafe { ffi::mtg_get_raw(x, y) }
+    pub fn get_raw_color(&self, x: u32, y: u32) -> i32 {
+        unsafe {
+            ffi::mtg_get_raw(
+                x.try_into().expect("couldn't cast raw color get x to i32"),
+                y.try_into().expect("couldn't cast raw color get y to i32"),
+            )
+        }
     }
 
     /// Set the raw color value at the certain `x` and `y` coordinates.  
     /// Analogous to the canvas' [`setRaw`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L30) method.
-    pub fn set_pixel_raw(&self, x: i32, y: i32, color: i32) {
+    pub fn set_pixel_raw(&self, x: u32, y: u32, color: i32) {
         unsafe {
-            ffi::mtg_set_raw(x, y, color);
+            ffi::mtg_set_raw(
+                x.try_into().expect("couldn't cast raw color set x to i32"),
+                y.try_into().expect("couldn't cast raw color set y to i32"),
+                color,
+            );
         }
     }
 
     /// Set the RGB color value at the certain `x` and `y` coordinates.  
     /// Analogous to calling the canvas' [`set`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L20) method
     /// with the color argument returned by [`CanvasUtils.findClosestColor`](https://github.com/Patbox/map-canvas-api/blob/b9781dbdd439ff94ff58383ee8ada64928d4bf28/src/main/java/eu/pb4/mapcanvas/api/utils/CanvasUtils.java#L116).
-    pub fn set_pixel_rgb(&self, x: i32, y: i32, color: i32) {
+    #[allow(clippy::cast_possible_wrap)]
+    pub fn set_pixel_rgb(&self, x: u32, y: u32, color: u32) {
         unsafe {
-            ffi::mtg_set_rgb(x, y, color);
+            ffi::mtg_set_rgb(
+                x.try_into().expect("couldn't cast rgb pixel x to i32"),
+                y.try_into().expect("couldn't cast rgb pixel y to i32"),
+                color as i32,
+            );
         }
     }
 
     /// Set the ARGB color value at the certain `x` and `y` coordinates.  
     /// Analogous to calling the canvas' [`set`](https://github.com/Patbox/map-canvas-api/blob/2dc8c9ab5ff2c5caa4cc29168b205224e95402ea/src/main/java/eu/pb4/mapcanvas/api/core/DrawableCanvas.java#L20) method
     /// with the color argument returned by [`CanvasUtils.findClosestColorARGB`](https://github.com/Patbox/map-canvas-api/blob/b9781dbdd439ff94ff58383ee8ada64928d4bf28/src/main/java/eu/pb4/mapcanvas/api/utils/CanvasUtils.java#L106).
-    pub fn set_pixel_argb(&self, x: i32, y: i32, color: i32) {
+    #[allow(clippy::cast_possible_wrap)]
+    pub fn set_pixel_argb(&self, x: u32, y: u32, color: u32) {
         unsafe {
-            ffi::mtg_set_argb(x, y, color);
+            ffi::mtg_set_argb(
+                x.try_into().expect("couldn't cast argb pixel x to i32"),
+                y.try_into().expect("couldn't cast argb pixel y to i32"),
+                color as i32,
+            );
         }
     }
 
     /// Draw a sprite at the certain `x` and `y` coordinates.  
     /// Analogous to calling the [`CanvasUtils.draw`](https://github.com/Patbox/map-canvas-api/blob/b9781dbdd439ff94ff58383ee8ada64928d4bf28/src/main/java/eu/pb4/mapcanvas/api/utils/CanvasUtils.java#L56) method
     /// with the source argument returned by [`TardisCanvasUtils.getSprite`](https://github.com/enjarai/mini-tardis/blob/cd9041c0cd82eb7f92d4e48ea3c24d9a2ec62e24/src/main/java/dev/enjarai/minitardis/canvas/TardisCanvasUtils.java#L41).
-    pub fn draw_inbuilt_sprite(&self, x: i32, y: i32, name: &str) {
+    pub fn draw_inbuilt_sprite(&self, x: u32, y: u32, name: &str) {
         let (name_address, name_len) = convert_str(name);
         unsafe {
-            ffi::mtg_draw_inbuilt_sprite(x, y, name_address, name_len);
+            ffi::mtg_draw_inbuilt_sprite(
+                x.try_into().expect("couldn't cast inbuilt sprite x to i32"),
+                y.try_into().expect("couldn't cast inbuilt sprite y to i32"),
+                name_address,
+                name_len,
+            );
         }
     }
 
     /// Draw text at the certain `x` and `y` coordinates.  
     /// Analogous to calling `DefaultFonts.VANILLA.drawText(canvas, text, x, y, size, CanvasUtils.findClosestColorARGB(argb));`.
-    pub fn draw_text(&self, x: i32, y: i32, text: &str, size: i32, argb_color: i32) {
+    #[allow(clippy::cast_possible_wrap)]
+    pub fn draw_text(&self, x: u32, y: u32, text: &str, size: u32, argb_color: u32) {
         let (text_address, text_len) = convert_str(text);
         unsafe {
-            ffi::mtg_draw_text(x, y, text_address, text_len, size, argb_color);
+            ffi::mtg_draw_text(
+                x.try_into().expect("couldn't cast text x to i32"),
+                y.try_into().expect("couldn't cast text y to i32"),
+                text_address,
+                text_len,
+                size.try_into().expect("couldn't cast text size to i32"),
+                argb_color as i32,
+            );
         }
     }
 }
@@ -224,8 +266,8 @@ macro_rules! game_impl {
         }
 
         #[no_mangle]
-        pub extern "C" fn mtg_on_click(data_ptr: i32, r#type: i32, x: i32, y: i32) {
-            $crate::_on_click::<$game_type>(data_ptr, r#type, x, y);
+        pub extern "C" fn mtg_on_click(data_ptr: i32, r#type: i32, x: i32, y: i32) -> i32 {
+            $crate::_on_click::<$game_type>(data_ptr, r#type, x, y)
         }
 
         #[no_mangle]
@@ -250,14 +292,22 @@ macro_rules! game_impl {
     };
 }
 
+/// The central game trait that your state type should implement.  
+/// Register that type using [`game_impl`].
 pub trait Game {
+    /// Initializes your game.  
+    /// This method should only be used to set up essential state, things like playing a startup sound belong in [`screen_open`](Game::screen_open).
     fn initialize() -> Self
     where
         Self: Sized;
 
+    /// The main draw method of your game.  
+    /// See [`Canvas`] for how to draw different things.
     fn draw(&mut self, screen: &Screen, canvas: &Canvas);
 
-    fn on_click(&mut self, screen: &Screen, click_type: ClickType, x: i32, y: i32);
+    ///
+    #[allow(clippy::must_use_candidate)]
+    fn on_click(&mut self, screen: &Screen, click_type: ClickType, x: i32, y: i32) -> bool;
 
     fn draw_background(&mut self, _screen: &Screen, canvas: &Canvas) {
         canvas.draw_inbuilt_sprite(0, 0, "app_background");
@@ -285,14 +335,15 @@ pub fn _draw<G: Game>(data_ptr: i32) {
 }
 
 #[doc(hidden)]
-pub fn _on_click<G: Game>(data_ptr: i32, r#type: i32, x: i32, y: i32) {
+#[allow(clippy::must_use_candidate)]
+pub fn _on_click<G: Game>(data_ptr: i32, r#type: i32, x: i32, y: i32) -> i32 {
     let game = unsafe { (data_ptr as *mut G).as_mut() }.expect("game was null in on_click");
     let click_type = match r#type {
         0 => ClickType::Left,
         1 => ClickType::Right,
         other => panic!("unknown click type {other}"),
     };
-    game.on_click(&Screen { _dummy: () }, click_type, x, y);
+    i32::from(game.on_click(&Screen { _dummy: () }, click_type, x, y))
 }
 
 #[doc(hidden)]
