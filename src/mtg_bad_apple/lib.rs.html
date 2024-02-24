@@ -84,6 +84,8 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>file;
 
 <span class="kw">use </span>mtg_rust::{game_impl, Game, SoundCategory};
@@ -97,7 +99,7 @@
 <span class="kw">const </span>WHITE_NORMAL: i32 = <span class="number">33</span>;
 <span class="kw">const </span>WHITE_HIGH: i32 = <span class="number">34</span>;
 
-<span class="kw">const fn </span>get_raw_color(frame: i32, x: i32, y: i32) -&gt; i32 {
+<span class="kw">const fn </span>get_raw_color(frame: u32, x: u32, y: u32) -&gt; i32 {
     <span class="kw">let </span>pixel = file::get_pixel(frame, x, y);
     <span class="kw">match </span>pixel {
         <span class="number">0 </span>=&gt; BLACK_LOWEST,
@@ -119,15 +121,16 @@
 }
 
 <span class="kw">impl </span>Game <span class="kw">for </span>BadApple {
-    <span class="kw">fn </span>initialize() -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-    {
-        Default::default()
+    <span class="kw">fn </span>initialize() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::default()
     }
 
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, screen: <span class="kw-2">&amp;</span>mtg_rust::Screen, canvas: <span class="kw-2">&amp;</span>mtg_rust::Canvas) {
-        <span class="kw">let </span>frame = <span class="self">self</span>.frame_counter.clamp(<span class="number">0</span>, file::FRAME_COUNT);
+        <span class="kw">let </span>frame = <span class="self">self
+            </span>.frame_counter
+            .clamp(<span class="number">0</span>, file::FRAME_COUNT)
+            .try_into()
+            .expect(<span class="string">"couldn't convert frame i32 to u32"</span>);
 
         <span class="kw">let </span>canvas_width = canvas.get_width();
         <span class="kw">let </span>canvas_height = canvas.get_height();
@@ -166,7 +169,8 @@
         _click_type: mtg_rust::ClickType,
         _x: i32,
         _y: i32,
-    ) {
-    }
+    ) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 </code></pre></div></section></main></body></html>

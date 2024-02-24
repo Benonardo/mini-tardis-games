@@ -64,9 +64,7 @@
 
 <span class="kw">impl </span>Game <span class="kw">for </span>Counter {
     <span class="kw">fn </span>initialize() -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-    {
+    </span>{
         <span class="kw">let </span>data = mtg_rust::get_persistent_data();
         <span class="kw">let </span>count = <span class="kw">if </span>data.is_empty() {
             <span class="number">0
@@ -87,8 +85,8 @@
             <span class="number">0</span>,
             <span class="number">0</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.cached_str,
-            <span class="number">96 </span>/ <span class="self">self</span>.cached_str.len() <span class="kw">as </span>i32,
-            <span class="number">0xFFFFFFFFu32 </span><span class="kw">as </span>i32,
+            <span class="number">96 </span>/ u32::try_from(<span class="self">self</span>.cached_str.len()).expect(<span class="string">"couldn't convert cached str size to u32"</span>),
+            <span class="number">0xFF_FF_FF_FFu32</span>,
         );
     }
 
@@ -98,13 +96,15 @@
         _click_type: mtg_rust::ClickType,
         _x: i32,
         _y: i32,
-    ) {
+    ) -&gt; bool {
         <span class="self">self</span>.count += <span class="number">1</span>;
         <span class="self">self</span>.cached_str = <span class="self">self</span>.count.to_string();
-    }
+
+        <span class="bool-val">true
+    </span>}
 
     <span class="kw">fn </span>screen_close(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _screen: <span class="kw-2">&amp;</span>mtg_rust::Screen) {
-        mtg_rust::save_persistent_data(<span class="kw-2">&amp;</span><span class="self">self</span>.count.to_ne_bytes())
+        mtg_rust::save_persistent_data(<span class="kw-2">&amp;</span><span class="self">self</span>.count.to_ne_bytes());
     }
 }
 </code></pre></div></section></main></body></html>

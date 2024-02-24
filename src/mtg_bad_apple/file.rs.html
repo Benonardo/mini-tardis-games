@@ -14,14 +14,18 @@
 <a href="#13" id="13">13</a>
 <a href="#14" id="14">14</a>
 <a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
 </pre></div><pre class="rust"><code><span class="kw">const </span>FILE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">"bad_apple.bin"</span>);
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>WIDTH: i32 = FILE[<span class="number">0</span>] <span class="kw">as </span>i32;
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>HEIGHT: i32 = FILE[<span class="number">1</span>] <span class="kw">as </span>i32;
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>WIDTH: u32 = FILE[<span class="number">0</span>] <span class="kw">as </span>u32;
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>HEIGHT: u32 = FILE[<span class="number">1</span>] <span class="kw">as </span>u32;
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>FRAME_COUNT: i32 = (FILE.len() - <span class="number">2</span>) <span class="kw">as </span>i32 * <span class="number">2 </span>/ (WIDTH * HEIGHT);
+<span class="attr">#[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>FRAME_COUNT: i32 = (FILE.len() - <span class="number">2</span>) <span class="kw">as </span>i32 * <span class="number">2 </span>/ (WIDTH * HEIGHT) <span class="kw">as </span>i32;
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>get_pixel(frame: i32, x: i32, y: i32) -&gt; u8 {
+<span class="attr">#[allow(clippy::cast_sign_loss)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const fn </span>get_pixel(frame: u32, x: u32, y: u32) -&gt; u8 {
     <span class="kw">let </span>index = frame * WIDTH * HEIGHT + x * HEIGHT + y;
     <span class="kw">if </span>index % <span class="number">2 </span>== <span class="number">0 </span>{
         FILE[<span class="number">2 </span>+ index <span class="kw">as </span>usize / <span class="number">2</span>] &gt;&gt; <span class="number">4
