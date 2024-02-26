@@ -11,7 +11,7 @@ typedef struct counter
 } 
 counter_t;
 
-void to_string(uint64_t value, char** string, uint8_t* digits)
+static void to_string(uint64_t value, char** string, uint8_t* digits)
 {
     {
         uint64_t temp = value;
@@ -26,10 +26,7 @@ void to_string(uint64_t value, char** string, uint8_t* digits)
     {
         free(*string);
     }
-    else
-    {
-        *string = malloc(*digits);
-    }
+    *string = malloc(*digits);
 
     for (uint8_t digit = 0; digit < *digits; digit++)
     {
@@ -71,18 +68,14 @@ __attribute__((export_name("mtg_draw"))) void mtg_draw(int32_t data_ptr)
 __attribute__((export_name("mtg_on_click"))) int32_t mtg_on_click(int32_t data_ptr, int32_t type, int32_t x, int32_t y)
 {
     counter_t* counter = (counter_t*)data_ptr;
-    if (counter->count == 0)
-    {
-        counter->cached_str = malloc(sizeof(char) * 21);
-    }
     counter->count++;
     to_string(counter->count, &counter->cached_str, &counter->cached_digits);
 
     return true;
 }
 
-void mtg_screen_close(int32_t data_ptr)
+__attribute__((export_name("mtg_screen_close"))) void mtg_screen_close(int32_t data_ptr)
 {
     counter_t* counter = (counter_t*)data_ptr;
-    mtg_save_persistent_data((int32_t)counter->count, sizeof(counter->count));
+    mtg_save_persistent_data((int32_t)&counter->count, sizeof(counter->count));
 }
